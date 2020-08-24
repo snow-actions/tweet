@@ -25,7 +25,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.4"
+    "@actions/core": "^1.2.4",
+    "@types/twitter": "^1.7.0",
+    "twitter": "^1.7.1"
   },
   "devDependencies": {
     "@types/jest": "^26.0.10",
