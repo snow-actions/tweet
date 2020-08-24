@@ -1,11 +1,16 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Tweet'
+description: 'Tweet'
+author: 'SnowCait'
 inputs:
-  milliseconds: # change this
+  status:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: 'The text of the status update. URL encode as necessary. t.co link wrapping will affect character counts.'
+outputs:
+  response:
+    description: 'Response JSON'
 runs:
   using: 'node12'
   main: 'dist/index.js'
+branding:
+  icon: 'edit'
+  color: 'blue'
