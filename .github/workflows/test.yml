@@ -15,10 +15,20 @@ jobs:
           npm install
       - run: |
           npm run all
+        env:
+          CONSUMER_API_KEY: ${{ secrets.CONSUMER_API_KEY }}
+          CONSUMER_API_SECRET_KEY: ${{ secrets.CONSUMER_API_SECRET_KEY }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: ./
+        env:
+          CONSUMER_API_KEY: ${{ secrets.CONSUMER_API_KEY }}
+          CONSUMER_API_SECRET_KEY: ${{ secrets.CONSUMER_API_SECRET_KEY }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
         with:
-          milliseconds: 1000
+          status: ${{ github.job }} ${{ github.run_id }} ${{ github.run_number }} ${{ github.ref }} ${{ github.sha }}
