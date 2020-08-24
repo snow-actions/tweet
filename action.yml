@@ -1,5 +1,5 @@
 name: 'Tweet'
-description: 'Tweet'
+description: 'Tweet action'
 author: 'SnowCait'
 inputs:
   status:
