@@ -21,7 +21,10 @@ jobs:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
   test: # make sure the action works on a clean machine without building
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, macos-10.15, windows-2019]
     steps:
       - uses: actions/checkout@v2
       - uses: ./
@@ -31,4 +34,4 @@ jobs:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
         with:
-          status: ${{ github.job }} ${{ github.run_id }} ${{ github.run_number }} ${{ github.ref }} ${{ github.sha }}
+          status: ${{ matrix.os }} ${{ github.job }} ${{ github.run_id }} ${{ github.run_number }} ${{ github.ref }} ${{ github.sha }}
