@@ -33,12 +33,16 @@ export async function uploadMedia(mediaPaths: string[]): Promise<string[]> {
       return await client.post('media/upload', {media})
     })
 
-    const responses = await Promise.all(promises)
-    resolve(
-      responses.map(x => {
-        core.debug(`ResponseData: ${JSON.stringify(x)}`)
-        return x.media_id_string
-      })
-    )
+    try {
+      const responses = await Promise.all(promises)
+      resolve(
+        responses.map(x => {
+          core.debug(`ResponseData: ${JSON.stringify(x)}`)
+          return x.media_id_string
+        })
+      )
+    } catch (error) {
+      core.setFailed(error)
+    }
   })
 }
