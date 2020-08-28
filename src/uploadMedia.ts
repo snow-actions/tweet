@@ -27,13 +27,13 @@ export async function uploadMedia(mediaPaths: string[]): Promise<string[]> {
       access_token_secret
     })
 
-    const promises = mediaPaths.map(async path => {
-      const media = fs.readFileSync(path)
-      // TODO: chunked
-      return await client.post('media/upload', {media})
-    })
-
     try {
+      const promises = mediaPaths.map(async path => {
+        const media = fs.readFileSync(path)
+        // TODO: chunked
+        return await client.post('media/upload', {media})
+      })
+
       const responses = await Promise.all(promises)
       resolve(
         responses.map(x => {

@@ -25260,12 +25260,12 @@ function uploadMedia(mediaPaths) {
                 access_token_key,
                 access_token_secret
             });
-            const promises = mediaPaths.map((path) => __awaiter(this, void 0, void 0, function* () {
-                const media = fs.readFileSync(path);
-                // TODO: chunked
-                return yield client.post('media/upload', { media });
-            }));
             try {
+                const promises = mediaPaths.map((path) => __awaiter(this, void 0, void 0, function* () {
+                    const media = fs.readFileSync(path);
+                    // TODO: chunked
+                    return yield client.post('media/upload', { media });
+                }));
                 const responses = yield Promise.all(promises);
                 resolve(responses.map(x => {
                     core.debug(`ResponseData: ${JSON.stringify(x)}`);
