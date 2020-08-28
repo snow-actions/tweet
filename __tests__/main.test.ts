@@ -10,6 +10,11 @@ test('tweet timestamp', async () => {
 // shows how the runner will run a javascript action with env / stdout protocol
 test('test runs', () => {
   process.env['INPUT_STATUS'] = new Date().toLocaleString('ja-JP')
+  process.env['INPUT_MEDIA_PATHS'] = `
+__tests__/Twitter_Logo_Blue.png
+__tests__/Twitter_Logo_WhiteOnBlue.png
+__tests__/Twitter_Logo_WhiteOnImage.png
+`
   const ip = path.join(__dirname, '..', 'lib', 'main.js')
   const options: cp.ExecSyncOptions = {
     env: process.env
