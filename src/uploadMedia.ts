@@ -4,7 +4,7 @@ import * as fs from 'fs'
 import * as core from '@actions/core'
 
 export async function uploadMedia(mediaPaths: string[]): Promise<string[]> {
-  return new Promise(async resolve => {
+  return new Promise(async (resolve, reject) => {
     core.debug(JSON.stringify(mediaPaths))
     for (const path of mediaPaths) {
       if (!isString(path)) {
@@ -42,7 +42,7 @@ export async function uploadMedia(mediaPaths: string[]): Promise<string[]> {
         })
       )
     } catch (error) {
-      core.setFailed(error)
+      reject(new Error('upload failed'))
     }
   })
 }
