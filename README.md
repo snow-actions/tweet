@@ -33,6 +33,10 @@ jobs:
           ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
         with:
           status: ${{ github.run_id }}-${{ github.run_number }} ${{ github.sha }}
+          media_paths: |
+            1st.png
+            2nd.png
+
       - run: echo ${{ steps.tweet.outputs.response }}
 ```
 
@@ -58,7 +62,7 @@ Request parameters.
 |name|required|description|
 |---|---|---|
 |status|required|The text of the status update. URL encode as necessary. [t.co link wrapping](https://developer.twitter.com/en/docs/basics/tco) will affect character counts.|
-|media_paths|optional|Upload media path(s).|
+|media_paths|optional|Upload media path(s). You may include up to 4 photos in a Tweet.|
 
 ### Outputs
 
