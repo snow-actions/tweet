@@ -58,6 +58,7 @@ Request parameters.
 |name|required|description|
 |---|---|---|
 |status|required|The text of the status update. URL encode as necessary. [t.co link wrapping](https://developer.twitter.com/en/docs/basics/tco) will affect character counts.|
+|media_paths|optional|Upload media path(s).|
 
 ### Outputs
 
