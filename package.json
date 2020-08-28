@@ -27,6 +27,8 @@
   "dependencies": {
     "@actions/core": "^1.2.4",
     "@types/twitter": "^1.7.0",
+    "fs": "0.0.1-security",
+    "path": "^0.12.7",
     "twitter": "^1.7.1"
   },
   "devDependencies": {

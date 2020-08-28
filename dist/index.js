@@ -4901,11 +4901,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
+const path = __importStar(__webpack_require__(622));
 const tweet_1 = __webpack_require__(416);
+const uploadMedia_1 = __webpack_require__(802);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const response = yield tweet_1.tweet(core.getInput('status'));
+            const mediaPaths = core.getInput('media_paths');
+            const mediaIds = yield uploadMedia_1.uploadMedia(mediaPaths
+                .split('\n')
+                .filter(x => x !== '')
+                .map(mediaPath => path.join(process.cwd(), mediaPath)));
+            core.debug(`Media IDs: ${mediaIds.join(', ')}`);
+            const response = yield tweet_1.tweet(core.getInput('status'), mediaIds);
             core.setOutput('response', response);
         }
         catch (error) {
@@ -12273,7 +12281,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.tweet = void 0;
 const twitter_1 = __importDefault(__webpack_require__(50));
 const util_1 = __webpack_require__(669);
-function tweet(status) {
+function tweet(status, mediaIds = []) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise(resolve => {
             if (!util_1.isString(status)) {
@@ -12289,9 +12297,14 @@ function tweet(status) {
                 access_token_key,
                 access_token_secret
             });
-            const parameters = {
-                status
-            };
+            const parameters = mediaIds.length > 0
+                ? {
+                    status,
+                    media_ids: mediaIds.join(',')
+                }
+                : {
+                    status
+                };
             client.post('statuses/update', parameters, (error, data, response) => {
                 if (error) {
                     throw error;
@@ -16470,7 +16483,7 @@ function write(key, options) {
 /***/ 540:
 /***/ (function(module) {
 
-module.exports = {"_from":"twitter","_id":"twitter@1.7.1","_inBundle":false,"_integrity":"sha1-B2I3jx3BwFDkj2ZqypBOJLGpYvQ=","_location":"/twitter","_phantomChildren":{},"_requested":{"type":"tag","registry":true,"raw":"twitter","name":"twitter","escapedName":"twitter","rawSpec":"","saveSpec":null,"fetchSpec":"latest"},"_requiredBy":["#USER","/"],"_resolved":"https://registry.npmjs.org/twitter/-/twitter-1.7.1.tgz","_shasum":"0762378f1dc1c050e48f666aca904e24b1a962f4","_spec":"twitter","_where":"C:\\Users\\SnowCait\\Documents\\GitHub\\tweet","author":{"name":"Desmond Morris","email":"hi@desmondmorris.com"},"bugs":{"url":"https://github.com/desmondmorris/node-twitter/issues"},"bundleDependencies":false,"dependencies":{"deep-extend":"^0.5.0","request":"^2.72.0"},"deprecated":false,"description":"Twitter API client library for node.js","devDependencies":{"eslint":"^3.12.0","mocha":"^3.2.0","nock":"^9.0.2"},"homepage":"https://github.com/desmondmorris/node-twitter","keywords":["twitter","streaming","oauth"],"license":"MIT","main":"./lib/twitter","name":"twitter","repository":{"type":"git","url":"git+https://github.com/desmondmorris/node-twitter.git"},"scripts":{"lint":"eslint test/*.js lib/*.js","test":"npm run lint && mocha"},"version":"1.7.1"};
+module.exports = {"_args":[["twitter@1.7.1","/Users/snowcait/GitHub/tweet"]],"_from":"twitter@1.7.1","_id":"twitter@1.7.1","_inBundle":false,"_integrity":"sha1-B2I3jx3BwFDkj2ZqypBOJLGpYvQ=","_location":"/twitter","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"twitter@1.7.1","name":"twitter","escapedName":"twitter","rawSpec":"1.7.1","saveSpec":null,"fetchSpec":"1.7.1"},"_requiredBy":["/"],"_resolved":"https://registry.npmjs.org/twitter/-/twitter-1.7.1.tgz","_spec":"1.7.1","_where":"/Users/snowcait/GitHub/tweet","author":{"name":"Desmond Morris","email":"hi@desmondmorris.com"},"bugs":{"url":"https://github.com/desmondmorris/node-twitter/issues"},"dependencies":{"deep-extend":"^0.5.0","request":"^2.72.0"},"description":"Twitter API client library for node.js","devDependencies":{"eslint":"^3.12.0","mocha":"^3.2.0","nock":"^9.0.2"},"homepage":"https://github.com/desmondmorris/node-twitter","keywords":["twitter","streaming","oauth"],"license":"MIT","main":"./lib/twitter","name":"twitter","repository":{"type":"git","url":"git+https://github.com/desmondmorris/node-twitter.git"},"scripts":{"lint":"eslint test/*.js lib/*.js","test":"npm run lint && mocha"},"version":"1.7.1"};
 
 /***/ }),
 
@@ -25179,6 +25192,93 @@ function createConnectionSSL (port, host, options) {
 
   return tls.connect(options);
 }
+
+
+/***/ }),
+
+/***/ 802:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.uploadMedia = void 0;
+const twitter_1 = __importDefault(__webpack_require__(50));
+const util_1 = __webpack_require__(669);
+const fs = __importStar(__webpack_require__(747));
+const core = __importStar(__webpack_require__(470));
+function uploadMedia(mediaPaths) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+            core.debug(JSON.stringify(mediaPaths));
+            for (const path of mediaPaths) {
+                if (!util_1.isString(path)) {
+                    throw new Error('media path not a string');
+                }
+                if (!fs.existsSync(path)) {
+                    throw new Error(`${path} not exists`);
+                }
+            }
+            const consumer_key = process.env.CONSUMER_API_KEY;
+            const consumer_secret = process.env.CONSUMER_API_SECRET_KEY;
+            const access_token_key = process.env.ACCESS_TOKEN;
+            const access_token_secret = process.env.ACCESS_TOKEN_SECRET;
+            const client = new twitter_1.default({
+                consumer_key,
+                consumer_secret,
+                access_token_key,
+                access_token_secret
+            });
+            try {
+                const promises = mediaPaths.map((path) => __awaiter(this, void 0, void 0, function* () {
+                    const media = fs.readFileSync(path);
+                    // TODO: chunked
+                    return yield client.post('media/upload', { media });
+                }));
+                const responses = yield Promise.all(promises);
+                resolve(responses.map(x => {
+                    core.debug(`ResponseData: ${JSON.stringify(x)}`);
+                    return x.media_id_string;
+                }));
+            }
+            catch (error) {
+                core.setFailed(error);
+            }
+        }));
+    });
+}
+exports.uploadMedia = uploadMedia;
 
 
 /***/ }),

@@ -5,6 +5,13 @@ inputs:
   status:
     required: true
     description: 'The text of the status update. URL encode as necessary. t.co link wrapping will affect character counts.'
+  media_paths:
+    description: |
+      Upload media path(s).
+      Size restrictions for uploading via API
+        * Image 5MB
+        * GIF 15MB
+        * Video 15MB
 outputs:
   response:
     description: 'Response JSON'

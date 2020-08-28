@@ -3,6 +3,7 @@
 </p>
 
 # Tweet action
+
 Tweet via GitHub Actions.
 
 ## Usage
@@ -36,6 +37,7 @@ jobs:
 ```
 
 ## Environments
+
 Authentication parameters.
 
 |name|required|description|
@@ -46,9 +48,11 @@ Authentication parameters.
 |ACCESS_TOKEN_SECRET|required|Access token secret|
 
 ## Inputs & Outputs
+
 See [action.yml](action.yml) and [Twitter API reference](https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update).
 
 ### Inputs
+
 Request parameters.
 
 |name|required|description|
@@ -56,6 +60,7 @@ Request parameters.
 |status|required|The text of the status update. URL encode as necessary. [t.co link wrapping](https://developer.twitter.com/en/docs/basics/tco) will affect character counts.|
 
 ### Outputs
+
 Response.
 
 |name|description|
