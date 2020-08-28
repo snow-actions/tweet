@@ -4910,6 +4910,7 @@ function run() {
             const mediaPaths = core.getInput('media_paths');
             const mediaIds = yield uploadMedia_1.uploadMedia(mediaPaths
                 .split('\n')
+                .filter(x => x !== '')
                 .map(mediaPath => path.join(process.cwd(), mediaPath)));
             core.debug(`Media IDs: ${mediaIds.join(', ')}`);
             const response = yield tweet_1.tweet(core.getInput('status'), mediaIds);
@@ -25240,6 +25241,7 @@ const core = __importStar(__webpack_require__(470));
 function uploadMedia(mediaPaths) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+            core.debug(JSON.stringify(mediaPaths));
             for (const path of mediaPaths) {
                 if (!util_1.isString(path)) {
                     throw new Error('media path not a string');

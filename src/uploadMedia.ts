@@ -5,6 +5,7 @@ import * as core from '@actions/core'
 
 export async function uploadMedia(mediaPaths: string[]): Promise<string[]> {
   return new Promise(async resolve => {
+    core.debug(JSON.stringify(mediaPaths))
     for (const path of mediaPaths) {
       if (!isString(path)) {
         throw new Error('media path not a string')

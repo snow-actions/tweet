@@ -9,6 +9,7 @@ async function run(): Promise<void> {
     const mediaIds = await uploadMedia(
       mediaPaths
         .split('\n')
+        .filter(x => x !== '')
         .map(mediaPath => path.join(process.cwd(), mediaPath))
     )
     core.debug(`Media IDs: ${mediaIds.join(', ')}`)
