@@ -10,14 +10,13 @@ Tweet via GitHub Actions.
 
 1. Create your Twitter App in [developer.twitter.com](https://developer.twitter.com/en/apps).
 1. Set secrets `TWITTER_CONSUMER_API_KEY`, `TWITTER_CONSUMER_API_SECRET_KEY`, `TWITTER_ACCESS_TOKEN`, `TWITTER_ACCESS_TOKEN_SECRET` in settings.
-1. Create workflow YAML.
+1. Create workflow YAML. `.github/workflows/released.yml`
 
 ```yml
-name: 'tweet'
+name: 'Tweet when released'
 on:
-  push:
-    branches:
-      - main
+  release:
+    types: [released]
 
 jobs:
   tweet:
@@ -32,7 +31,9 @@ jobs:
           ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
           ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
         with:
-          status: ${{ github.run_id }}-${{ github.run_number }} ${{ github.sha }}
+          status: |
+            Released ${{ github.event.release.name }}
+            ${{ github.event.release.html_url }}
           media_paths: |
             1st.png
             2nd.png
