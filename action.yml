@@ -1,5 +1,5 @@
 name: 'Tweet action'
-description: 'Tweet action'
+description: 'Tweet in Twitter via GitHub Actions'
 author: 'SnowCait'
 inputs:
   status:
