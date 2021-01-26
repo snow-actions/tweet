@@ -20,6 +20,7 @@ jobs:
           CONSUMER_API_SECRET_KEY: ${{ secrets.CONSUMER_API_SECRET_KEY }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
+      - run: git status
       - name: Count changes
         id: changes
         run: echo "::set-output name=count::$(git diff --name-only | wc -l)"
