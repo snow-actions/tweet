@@ -16,7 +16,7 @@ async function run(): Promise<void> {
     const response = await tweet(core.getInput('status'), mediaIds)
     core.setOutput('response', response)
   } catch (error) {
-    core.setFailed(error.message)
+    if (error instanceof Error) core.setFailed(error.message)
   }
 }
 

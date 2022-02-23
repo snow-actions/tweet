@@ -1,0 +1,58 @@
+name: npm-check-updates
+
+on:
+  schedule:
+    - cron: 0 0 1 * *
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/npm-check-updates.yml
+
+jobs:
+  update:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Versions
+        run: |
+          node --version
+          npm --version
+      - run: npm install -g npm-check-updates
+      - run: ncu -u
+      - run: npm install
+      - run: npm audit fix
+      - run: npm run build
+      - run: npm run format
+#       - run: npm run lint
+      - run: npm run package
+      - run: npm test
+        env:
+          CONSUMER_API_KEY: ${{ secrets.CONSUMER_API_KEY }}
+          CONSUMER_API_SECRET_KEY: ${{ secrets.CONSUMER_API_SECRET_KEY }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
+      - name: Diff
+        id: diff
+        run: |
+          git add -N .
+          git diff --name-only --exit-code
+        continue-on-error: true
+      - name: Commit & Push
+        run: |
+          set -x
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git switch -C npm-check-updates
+          git add .
+          git commit -m 'npm-check-updates'
+          git push --force --set-upstream origin npm-check-updates
+      - name: Create PR
+        run: |
+          set -x
+          if [ $(gh pr list --base main --head npm-check-updates | wc -l) -eq 0 ]; then
+            gh pr create --base main --head npm-check-updates --title 'npm-check-updates' --body '' --label dependencies --reviewer SnowCait
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
