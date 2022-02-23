@@ -10,10 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: |
-          npm install
-      - run: |
-          npm run all
+      - run: npm install
+      - run: npm run all
         env:
           CONSUMER_API_KEY: ${{ secrets.CONSUMER_API_KEY }}
           CONSUMER_API_SECRET_KEY: ${{ secrets.CONSUMER_API_SECRET_KEY }}
