@@ -33,3 +33,17 @@ jobs:
           CONSUMER_API_SECRET_KEY: ${{ secrets.CONSUMER_API_SECRET_KEY }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
+      - name: Diff
+        id: diff
+        run: |
+          git add -N .
+          git diff --name-only --exit-code
+        continue-on-error: true
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git switch -C npm-check-updates
+          git add .
+          git commit -m 'npm-check-updates'
+          git push -f
