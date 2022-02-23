@@ -54,3 +54,5 @@ jobs:
           if [ $(gh pr list --base main --head npm-check-updates | wc -l) -eq 0 ]; then
             gh pr create --base main --head npm-check-updates --fill --label dependencies --reviewer SnowCait
           fi
+        env:
+          GH_TOKEN: ${{ github.token }}
