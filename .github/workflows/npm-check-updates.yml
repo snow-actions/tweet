@@ -57,3 +57,4 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{ github.token }}
+        if: steps.diff.outcome == 'failure'
