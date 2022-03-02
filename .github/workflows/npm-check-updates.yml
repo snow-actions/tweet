@@ -48,6 +48,7 @@ jobs:
           git add .
           git commit -m 'npm-check-updates'
           git push --force --set-upstream origin npm-check-updates
+        if: steps.diff.outcome == 'failure'
       - name: Create PR
         run: |
           set -x
