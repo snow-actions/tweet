@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: npm install
       - run: npm run all
         env:
@@ -24,7 +24,7 @@ jobs:
         # Only latest because of API rate limit
         os: [ ubuntu-latest, macos-latest, windows-latest ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: ./
         env:
           CONSUMER_API_KEY: ${{ secrets.CONSUMER_API_KEY }}

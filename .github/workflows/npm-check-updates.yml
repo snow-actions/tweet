@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Versions
         run: |
           node --version
@@ -48,6 +48,7 @@ jobs:
           git add .
           git commit -m 'npm-check-updates'
           git push --force --set-upstream origin npm-check-updates
+        if: steps.diff.outcome == 'failure'
       - name: Create PR
         run: |
           set -x
