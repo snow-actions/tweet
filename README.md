@@ -10,35 +10,48 @@ Tweet via GitHub Actions.
 
 1. Create your Twitter App in [developer.twitter.com](https://developer.twitter.com/en/apps).
 1. Set secrets `TWITTER_CONSUMER_API_KEY`, `TWITTER_CONSUMER_API_SECRET_KEY`, `TWITTER_ACCESS_TOKEN`, `TWITTER_ACCESS_TOKEN_SECRET` in settings.
-1. Create workflow YAML. `.github/workflows/released.yml`
+1. Create workflow YAML.
+
+### Basic
 
 ```yml
-name: 'Tweet when released'
-on:
-  release:
-    types: [released]
+steps:
+  - name: Tweet
+    uses: snow-actions/tweet@v1.1.1
+    with:
+      status: |
+        Released ${{ github.event.release.name }}
+        ${{ github.event.release.html_url }}
+    env:
+      CONSUMER_API_KEY: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
+      CONSUMER_API_SECRET_KEY: ${{ secrets.TWITTER_CONSUMER_API_SECRET_KEY }}
+      ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+      ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+```
 
-jobs:
-  tweet:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Tweet
-        id: tweet
-        uses: snow-actions/tweet@v1.1.1
-        env:
-          CONSUMER_API_KEY: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
-          CONSUMER_API_SECRET_KEY: ${{ secrets.TWITTER_CONSUMER_API_SECRET_KEY }}
-          ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
-          ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
-        with:
-          status: |
-            Released ${{ github.event.release.name }}
-            ${{ github.event.release.html_url }}
-          media_paths: |
-            1st.png
-            2nd.png
+### Optional
 
-      - run: echo ${{ steps.tweet.outputs.response }}
+```yml
+steps:
+  - uses: actions/checkout@v3
+  - name: Tweet
+    id: tweet
+    uses: snow-actions/tweet@v1.1.1
+    env:
+      CONSUMER_API_KEY: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
+      CONSUMER_API_SECRET_KEY: ${{ secrets.TWITTER_CONSUMER_API_SECRET_KEY }}
+      ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+      ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+    with:
+      status: |
+        Released ${{ github.event.release.name }}
+        ${{ github.event.release.html_url }}
+      media_paths: |
+        1st.png
+        2nd.png
+  - run: echo "${TWEET_ID}"
+    env:
+      TWEET_ID: ${{ fromJSON(steps.tweet.outputs.response).id_str }}
 ```
 
 ## Environments
