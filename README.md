@@ -17,7 +17,7 @@ Tweet via GitHub Actions.
 ```yml
 steps:
   - name: Tweet
-    uses: snow-actions/tweet@v1.1.1
+    uses: snow-actions/tweet@v1.1.2
     with:
       status: |
         Released ${{ github.event.release.name }}
@@ -36,7 +36,7 @@ steps:
   - uses: actions/checkout@v3
   - name: Tweet
     id: tweet
-    uses: snow-actions/tweet@v1.1.1
+    uses: snow-actions/tweet@v1.1.2
     env:
       CONSUMER_API_KEY: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
       CONSUMER_API_SECRET_KEY: ${{ secrets.TWITTER_CONSUMER_API_SECRET_KEY }}
