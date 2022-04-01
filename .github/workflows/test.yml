@@ -25,7 +25,8 @@ jobs:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
     steps:
       - uses: actions/checkout@v3
-      - uses: ./
+      - id: tweet
+        uses: ./
         env:
           CONSUMER_API_KEY: ${{ secrets.CONSUMER_API_KEY }}
           CONSUMER_API_SECRET_KEY: ${{ secrets.CONSUMER_API_SECRET_KEY }}
@@ -33,3 +34,6 @@ jobs:
           ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
         with:
           status: ${{ matrix.os }} ${{ github.job }} ${{ github.run_id }} ${{ github.run_number }} ${{ github.ref }} ${{ github.sha }}
+      - run: test -n "${ID}"
+        env:
+          ID: ${{ fromJSON(steps.tweet.outputs.response).id_str }}
