@@ -35,7 +35,7 @@ export async function tweet(
         throw error
       }
 
-      resolve(JSON.stringify(response.body))
+      resolve(response.body)
     })
   })
 }

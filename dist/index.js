@@ -15511,7 +15511,7 @@ function tweet(status, mediaIds = []) {
                 if (error) {
                     throw error;
                 }
-                resolve(JSON.stringify(response.body));
+                resolve(response.body);
             });
         });
     });
