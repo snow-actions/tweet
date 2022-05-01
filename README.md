@@ -32,16 +32,16 @@ steps:
 ### Optional
 
 ```yml
+env:
+  CONSUMER_API_KEY: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
+  CONSUMER_API_SECRET_KEY: ${{ secrets.TWITTER_CONSUMER_API_SECRET_KEY }}
+  ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+  ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
 steps:
   - uses: actions/checkout@v3
-  - name: Tweet
-    id: tweet
+  - name: Tweet summary
+    id: summary
     uses: snow-actions/tweet@v1.1.3
-    env:
-      CONSUMER_API_KEY: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
-      CONSUMER_API_SECRET_KEY: ${{ secrets.TWITTER_CONSUMER_API_SECRET_KEY }}
-      ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
-      ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
     with:
       status: |
         Released ${{ github.event.release.name }}
@@ -49,9 +49,12 @@ steps:
       media_paths: |
         1st.png
         2nd.png
-  - run: echo "${TWEET_ID}"
-    env:
-      TWEET_ID: ${{ fromJSON(steps.tweet.outputs.response).id_str }}
+  - name: Tweet details
+    uses: snow-actions/tweet@v1.1.3
+    with:
+      status: |
+        Additional information
+      in_reply_to_status_id: ${{ fromJSON(steps.summary.outputs.response).id_str }}
 ```
 
 ## Environments
