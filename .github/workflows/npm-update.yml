@@ -48,6 +48,11 @@ jobs:
           git commit -m 'npm update'
           git push --force --set-upstream origin dependencies/npm-update
         if: steps.diff.outcome == 'failure'
+      - id: generate_token
+        uses: tibdex/github-app-token@v1.5.2
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
       - name: Create PR
         run: |
           set -x
@@ -55,5 +60,5 @@ jobs:
             gh pr create --base ${GITHUB_REF} --head dependencies/npm-update --title 'npm update' --body '' --label dependencies --reviewer SnowCait
           fi
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
         if: steps.diff.outcome == 'failure'
