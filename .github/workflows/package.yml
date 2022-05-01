@@ -1,0 +1,41 @@
+name: Package
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/package.yml
+
+jobs:
+  package:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 5
+
+    steps:
+      - id: generate_token
+        uses: tibdex/github-app-token@v1.5.2
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ steps.generate_token.outputs.token }}
+          ref: ${{ github.head_ref }}
+      - run: npm install
+      - run: npm run build
+      - run: npm run lint
+        continue-on-error: true
+      - run: npm run package
+      - name: Diff
+        id: diff
+        run: |
+          git add -N .
+          git diff --name-only --exit-code
+        continue-on-error: true
+      - uses: snow-actions/git-config-user@v1.0.0
+        if: steps.diff.outcome == 'failure'
+      - name: Commit & Push
+        run: |
+          git add .
+          git commit -m 'npm run package'
+          git push
+        if: steps.diff.outcome == 'failure'
