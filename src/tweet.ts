@@ -1,15 +1,11 @@
 import Twitter from 'twitter'
-import {isString} from 'util'
 
 export async function tweet(
   status: string,
-  mediaIds: string[] = []
+  mediaIds: string[] = [],
+  inReplyToStatusId: string = ''
 ): Promise<string> {
   return new Promise((resolve, reject) => {
-    if (!isString(status)) {
-      throw new Error('status not a string')
-    }
-
     const consumer_key = process.env.CONSUMER_API_KEY as string
     const consumer_secret = process.env.CONSUMER_API_SECRET_KEY as string
     const access_token_key = process.env.ACCESS_TOKEN as string
@@ -21,15 +17,13 @@ export async function tweet(
       access_token_key,
       access_token_secret
     })
-    const parameters =
-      mediaIds.length > 0
-        ? {
-            status,
-            media_ids: mediaIds.join(',')
-          }
-        : {
-            status
-          }
+    let parameters: {[key: string]: any} = {status}
+    if (mediaIds.length > 0) {
+      parameters['media_ids'] = mediaIds.join(',')
+    }
+    if (inReplyToStatusId != '') {
+      parameters['in_reply_to_status_id'] = inReplyToStatusId
+    }
     client.post('statuses/update', parameters, (errors, data, response) => {
       if (errors) {
         reject(errors)

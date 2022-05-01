@@ -12,6 +12,10 @@ inputs:
         * Image 5MB
         * GIF 15MB
         * Video 15MB
+    required: false
+  in_reply_to_status_id:
+    description: The ID of an existing status that the update is in reply to.
+    required: false
 outputs:
   response:
     description: 'Response JSON'
