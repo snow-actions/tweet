@@ -5798,7 +5798,8 @@ function run() {
                 .filter(x => x !== '')
                 .map(mediaPath => path.join(process.cwd(), mediaPath)));
             core.debug(`Media IDs: ${mediaIds.join(', ')}`);
-            const response = yield (0, tweet_1.tweet)(core.getInput('status'), mediaIds);
+            const inReplyToStatusId = core.getInput('in_reply_to_status_id');
+            const response = yield (0, tweet_1.tweet)(core.getInput('status'), mediaIds, inReplyToStatusId);
             core.setOutput('response', response);
         }
         catch (error) {
@@ -15482,13 +15483,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.tweet = void 0;
 const twitter_1 = __importDefault(__webpack_require__(50));
-const util_1 = __webpack_require__(669);
-function tweet(status, mediaIds = []) {
+function tweet(status, mediaIds = [], inReplyToStatusId = '') {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => {
-            if (!(0, util_1.isString)(status)) {
-                throw new Error('status not a string');
-            }
             const consumer_key = process.env.CONSUMER_API_KEY;
             const consumer_secret = process.env.CONSUMER_API_SECRET_KEY;
             const access_token_key = process.env.ACCESS_TOKEN;
@@ -15499,14 +15496,13 @@ function tweet(status, mediaIds = []) {
                 access_token_key,
                 access_token_secret
             });
-            const parameters = mediaIds.length > 0
-                ? {
-                    status,
-                    media_ids: mediaIds.join(',')
-                }
-                : {
-                    status
-                };
+            let parameters = { status };
+            if (mediaIds.length > 0) {
+                parameters['media_ids'] = mediaIds.join(',');
+            }
+            if (inReplyToStatusId != '') {
+                parameters['in_reply_to_status_id'] = inReplyToStatusId;
+            }
             client.post('statuses/update', parameters, (errors, data, response) => {
                 if (errors) {
                     reject(errors);
