@@ -1,0 +1,24 @@
+name: Release
+
+on:
+  pull_request:
+    types: [ closed ]
+  workflow_dispatch:
+
+jobs:
+  release:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/'))
+    runs-on: ubuntu-20.04
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RELEASE_BRANCH: ${{ github.event.pull_request.head.ref }}
+
+    steps:
+      - name: Create release draft
+        run: |
+          version=${RELEASE_BRANCH#release/}
+          gh release create ${version} --draft --title ${version} --generate-notes
