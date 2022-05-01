@@ -1,0 +1,23 @@
+name: Released
+
+on:
+  release:
+    types: [ released ]
+
+jobs:
+  tweet:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 5
+
+    steps:
+      - name: Tweet
+        uses: snow-actions/tweet@v1.1.3
+        with:
+          status: |
+            Release ${{ github.event.release.name }} · ${{ github.repository }}
+            ${{ github.event.release.html_url }}
+        env:
+          CONSUMER_API_KEY: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
+          CONSUMER_API_SECRET_KEY: ${{ secrets.TWITTER_CONSUMER_API_SECRET_KEY }}
+          ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
