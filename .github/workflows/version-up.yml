@@ -1,0 +1,50 @@
+name: Version up
+
+on:
+  workflow_dispatch:
+    inputs:
+      semantic:
+        description: Semantic versioning
+        required: true
+        default: patch
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+jobs:
+  version-up:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Version up
+        id: version
+        run: |
+          set -x
+          version=$(npm --no-git-tag-version version $SEMANTIC)
+          echo "::set-output name=version::${version}"
+          sed -i -e "s|${GITHUB_REPOSITORY}@v[.0-9]\+|${GITHUB_REPOSITORY}@${version}|g" README.md
+          git diff
+        env:
+          SEMANTIC: ${{ github.event.inputs.semantic }}
+      - uses: snow-actions/git-config-user@v1.0.0
+      - id: generate_token
+        uses: tibdex/github-app-token@v1.5.2
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+      - name: Commit & PR
+        run: |
+          set -x
+          branch="release/${VERSION}"
+          git switch -c ${branch}
+          git add .
+          git commit -m "${VERSION}"
+          git push origin ${branch}
+          gh pr create --base ${GITHUB_REF_NAME} --head ${branch} --assignee ${GITHUB_ACTOR} --title ${VERSION} --body ''
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
