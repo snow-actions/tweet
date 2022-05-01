@@ -1,7 +1,12 @@
-name: npm-check-updates
+name: npm update
 
 on:
+  schedule:
+    - cron: 0 0 1 * *
   workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/npm-update.yml
 
 jobs:
   update:
@@ -12,11 +17,10 @@ jobs:
       - uses: actions/checkout@v3
       - name: Versions
         run: |
+          set -x
           node --version
           npm --version
-      - run: npm install -g npm-check-updates
-      - run: ncu -u
-      - run: npm install
+      - run: npm update
       - run: npm audit fix
       - run: npm run format
       - run: npm run build
@@ -39,16 +43,16 @@ jobs:
       - name: Commit & Push
         run: |
           set -x
-          git switch -C dependencies/npm-check-updates
+          git switch -C dependencies/npm-update
           git add .
-          git commit -m 'npm-check-updates'
-          git push --force --set-upstream origin dependencies/npm-check-updates
+          git commit -m 'npm update'
+          git push --force --set-upstream origin dependencies/npm-update
         if: steps.diff.outcome == 'failure'
       - name: Create PR
         run: |
           set -x
-          if [ $(gh pr list --base ${GITHUB_REF} --head dependencies/npm-check-updates | wc -l) -eq 0 ]; then
-            gh pr create --base ${GITHUB_REF} --head dependencies/npm-check-updates --title 'npm-check-updates' --body '' --label dependencies --reviewer SnowCait
+          if [ $(gh pr list --base ${GITHUB_REF} --head dependencies/npm-update | wc -l) -eq 0 ]; then
+            gh pr create --base ${GITHUB_REF} --head dependencies/npm-update --title 'npm update' --body '' --label dependencies --reviewer SnowCait
           fi
         env:
           GH_TOKEN: ${{ github.token }}
