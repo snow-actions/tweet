@@ -5,7 +5,7 @@ export async function tweet(
   status: string,
   mediaIds: string[] = []
 ): Promise<string> {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     if (!isString(status)) {
       throw new Error('status not a string')
     }
@@ -30,9 +30,9 @@ export async function tweet(
         : {
             status
           }
-    client.post('statuses/update', parameters, (error, data, response) => {
-      if (error) {
-        throw error
+    client.post('statuses/update', parameters, (errors, data, response) => {
+      if (errors) {
+        reject(errors)
       }
 
       resolve(response.body)
