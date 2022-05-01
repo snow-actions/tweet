@@ -18,9 +18,10 @@ jobs:
       - run: ncu -u
       - run: npm install
       - run: npm audit fix
-      - run: npm run build
       - run: npm run format
-#       - run: npm run lint
+      - run: npm run build
+      - run: npm run lint
+        continue-on-error: true
       - run: npm run package
       - run: npm test
         env:
@@ -34,21 +35,20 @@ jobs:
           git add -N .
           git diff --name-only --exit-code
         continue-on-error: true
+      - uses: snow-actions/git-config-user@v1.0.0
       - name: Commit & Push
         run: |
           set -x
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git switch -C npm-check-updates
+          git switch -C dependencies/npm-check-updates
           git add .
           git commit -m 'npm-check-updates'
-          git push --force --set-upstream origin npm-check-updates
+          git push --force --set-upstream origin dependencies/npm-check-updates
         if: steps.diff.outcome == 'failure'
       - name: Create PR
         run: |
           set -x
-          if [ $(gh pr list --base main --head npm-check-updates | wc -l) -eq 0 ]; then
-            gh pr create --base main --head npm-check-updates --title 'npm-check-updates' --body '' --label dependencies --reviewer SnowCait
+          if [ $(gh pr list --base ${GITHUB_REF} --head dependencies/npm-check-updates | wc -l) -eq 0 ]; then
+            gh pr create --base ${GITHUB_REF} --head dependencies/npm-check-updates --title 'npm-check-updates' --body '' --label dependencies --reviewer SnowCait
           fi
         env:
           GH_TOKEN: ${{ github.token }}
