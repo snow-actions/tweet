@@ -15485,7 +15485,7 @@ const twitter_1 = __importDefault(__webpack_require__(50));
 const util_1 = __webpack_require__(669);
 function tweet(status, mediaIds = []) {
     return __awaiter(this, void 0, void 0, function* () {
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             if (!(0, util_1.isString)(status)) {
                 throw new Error('status not a string');
             }
@@ -15507,9 +15507,9 @@ function tweet(status, mediaIds = []) {
                 : {
                     status
                 };
-            client.post('statuses/update', parameters, (error, data, response) => {
-                if (error) {
-                    throw error;
+            client.post('statuses/update', parameters, (errors, data, response) => {
+                if (errors) {
+                    reject(errors);
                 }
                 resolve(response.body);
             });
