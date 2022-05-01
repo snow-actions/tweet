@@ -13,7 +13,14 @@ async function run(): Promise<void> {
         .map(mediaPath => path.join(process.cwd(), mediaPath))
     )
     core.debug(`Media IDs: ${mediaIds.join(', ')}`)
-    const response = await tweet(core.getInput('status'), mediaIds)
+
+    const inReplyToStatusId = core.getInput('in_reply_to_status_id')
+
+    const response = await tweet(
+      core.getInput('status'),
+      mediaIds,
+      inReplyToStatusId
+    )
     core.setOutput('response', response)
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)

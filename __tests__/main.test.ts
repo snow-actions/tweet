@@ -3,8 +3,10 @@ import * as process from 'process'
 import * as cp from 'child_process'
 import * as path from 'path'
 
-test('tweet timestamp', async () => {
-  const response = await tweet(Date.now().toString())
+test('tweet', async () => {
+  const text = Date.now().toString()
+  const response = await tweet(text)
+  await tweet(`in reply to ${text}`, [], JSON.parse(response).id_str)
 })
 
 // shows how the runner will run a javascript action with env / stdout protocol
