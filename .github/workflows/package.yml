@@ -4,6 +4,10 @@ on:
   pull_request:
     paths:
       - .github/workflows/package.yml
+      - dist/**
+      - src/**
+      - package-lock.json
+      - package.json
 
 jobs:
   package:
@@ -21,6 +25,7 @@ jobs:
           token: ${{ steps.generate_token.outputs.token }}
           ref: ${{ github.head_ref }}
       - run: npm install
+      - run: npm run format
       - run: npm run build
       - run: npm run lint
         continue-on-error: true
@@ -28,6 +33,7 @@ jobs:
       - name: Diff
         id: diff
         run: |
+          git status
           git add -N .
           git diff --name-only --exit-code
         continue-on-error: true
