@@ -1,0 +1,59 @@
+name: npm update
+
+on:
+  schedule:
+    - cron: 0 0 1 * *
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/npm-update.yml
+
+jobs:
+  update:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Versions
+        run: |
+          set -x
+          node --version
+          npm --version
+      - run: npm update
+      - run: npm audit fix
+      - run: npm run format
+      - run: npm run build
+      - run: npm run lint
+        continue-on-error: true
+      - run: npm run package
+      - run: npm test
+        env:
+          CONSUMER_API_KEY: ${{ secrets.CONSUMER_API_KEY }}
+          CONSUMER_API_SECRET_KEY: ${{ secrets.CONSUMER_API_SECRET_KEY }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
+      - name: Diff
+        id: diff
+        run: |
+          git add -N .
+          git diff --name-only --exit-code
+        continue-on-error: true
+      - uses: snow-actions/git-config-user@v1.0.0
+      - name: Commit & Push
+        run: |
+          set -x
+          git switch -C npm-update
+          git add .
+          git commit -m 'npm update'
+          git push --force --set-upstream origin npm-update
+        if: steps.diff.outcome == 'failure'
+      - name: Create PR
+        run: |
+          set -x
+          if [ $(gh pr list --base main --head npm-update | wc -l) -eq 0 ]; then
+            gh pr create --base main --head npm-update --title 'npm update' --body '' --label dependencies --reviewer SnowCait
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+        if: steps.diff.outcome == 'failure'
