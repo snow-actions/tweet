@@ -86,3 +86,16 @@ Response.
 |name|description|
 |---|---|
 |response|Response JSON|
+
+## Supported
+
+### Runners
+
+- `ubuntu-*`
+- `windows-*`
+- `macos-*`
+- `self-hosted`
+
+### Events
+
+- Any
