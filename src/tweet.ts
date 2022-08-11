@@ -3,7 +3,7 @@ import Twitter from 'twitter'
 export async function tweet(
   status: string,
   mediaIds: string[] = [],
-  inReplyToStatusId: string = ''
+  inReplyToStatusId = ''
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const consumer_key = process.env.CONSUMER_API_KEY as string
@@ -17,7 +17,7 @@ export async function tweet(
       access_token_key,
       access_token_secret
     })
-    let parameters: {[key: string]: any} = {status}
+    const parameters: {[key: string]: any} = {status}
     if (mediaIds.length > 0) {
       parameters['media_ids'] = mediaIds.join(',')
     }
