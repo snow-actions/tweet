@@ -6,6 +6,62 @@ on:
       - main
 
 jobs:
+  paths:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    outputs:
+      package: ${{ steps.changes.outputs.package }}
+
+    steps:
+      - run: cat $GITHUB_EVENT_PATH
+      - uses: dorny/paths-filter@v2.10.2
+        id: changes
+        with:
+          filters: |
+            package:
+              - .github/workflows/package.yml
+              - dist/**
+              - src/**
+              - package-lock.json
+              - package.json
+
+  package:
+    needs: [ paths ]
+    if: needs.paths.outputs.package == 'true' && github.event_name == 'pull_request'
+    runs-on: ubuntu-20.04
+    timeout-minutes: 5
+
+    steps:
+      - id: generate_token
+        uses: tibdex/github-app-token@v1.6.0
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ steps.generate_token.outputs.token }}
+          ref: ${{ github.head_ref }}
+      - run: npm install
+      - run: npm run format
+      - run: npm run build
+      - run: npm run lint
+      - run: npm run package
+      - name: Diff
+        id: diff
+        run: |
+          git status
+          git add -N .
+          git diff --name-only --exit-code
+        continue-on-error: true
+      - uses: snow-actions/git-config-user@v1.0.0
+        if: steps.diff.outcome == 'failure'
+      - name: Commit & Push
+        run: |
+          git add .
+          git commit -m 'npm run package'
+          git push
+        if: steps.diff.outcome == 'failure'
+
   build:
     runs-on: ubuntu-latest
     steps:
