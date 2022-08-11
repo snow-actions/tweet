@@ -104,4 +104,4 @@ jobs:
         env:
           needs: ${{ toJSON(needs) }}
       - run: exit 1
-        if: failure() == false || cancelled() == false
+        if: (failure() == false && cancelled() == false) == false # success() || skipped()
