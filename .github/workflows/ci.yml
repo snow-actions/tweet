@@ -88,7 +88,10 @@ jobs:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
         with:
-          status: ${{ matrix.os }}\n${{ github.sha }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          status: |
+            ${{ matrix.os }}
+            ${{ github.sha }}
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       - run: test -n "${ID}"
         env:
           ID: ${{ fromJSON(steps.tweet.outputs.response).id_str }}
