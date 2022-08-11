@@ -4,9 +4,6 @@ on:
   schedule:
     - cron: 0 0 1 * *
   workflow_dispatch:
-  push:
-    paths:
-      - .github/workflows/npm-update.yml
 
 jobs:
   update:
