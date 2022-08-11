@@ -17,11 +17,11 @@ export async function tweet(
       access_token_key,
       access_token_secret
     })
-    const parameters: {[key: string]: any} = {status}
+    const parameters: {[key: string]: string} = {status}
     if (mediaIds.length > 0) {
       parameters['media_ids'] = mediaIds.join(',')
     }
-    if (inReplyToStatusId != '') {
+    if (inReplyToStatusId !== '') {
       parameters['in_reply_to_status_id'] = inReplyToStatusId
     }
     client.post('statuses/update', parameters, (errors, data, response) => {
