@@ -11,6 +11,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       package: ${{ steps.changes.outputs.package }}
+      test: ${{ steps.changes.outputs.test }}
 
     steps:
       - run: cat $GITHUB_EVENT_PATH
@@ -24,6 +25,8 @@ jobs:
               - src/**
               - package-lock.json
               - package.json
+            test:
+              - .github/workflows/test.yml
 
   package:
     needs: [ paths ]
@@ -60,6 +63,7 @@ jobs:
           git add .
           git commit -m 'npm run package'
           git push
+          exit 1
         if: steps.diff.outcome == 'failure'
 
   build:
@@ -73,7 +77,13 @@ jobs:
           CONSUMER_API_SECRET_KEY: ${{ secrets.CONSUMER_API_SECRET_KEY }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
+
   test:
+    needs: [ paths, package ]
+    if: >-
+      failure() == false &&
+      cancelled() == false &&
+      (needs.paths.outputs.package == 'true' || needs.paths.outputs.test == 'true')
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -93,3 +103,17 @@ jobs:
       - run: test -n "${ID}"
         env:
           ID: ${{ fromJSON(steps.tweet.outputs.response).id_str }}
+
+  # Required status checks
+  passing:
+    needs: [ test ]
+    if: always()
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+
+    steps:
+      - run: echo "$needs"
+        env:
+          needs: ${{ toJSON(needs) }}
+      - run: exit 1
+        if: failure() == false || cancelled() == false
