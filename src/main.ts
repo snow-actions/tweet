@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as path from 'path'
 import {tweet} from './tweet'
-import {uploadMedia} from './uploadMedia'
+import {uploadMedia} from './upload-media'
 
 async function run(): Promise<void> {
   try {
