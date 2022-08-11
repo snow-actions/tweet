@@ -1,8 +1,6 @@
-<p align="center">
-  <a href="https://github.com/snow-actions/tweet/actions"><img alt="snow-actions/tweet status" src="https://github.com/snow-actions/tweet/workflows/build-test/badge.svg"></a>
-</p>
-
 # Tweet action
+
+[![CI](https://github.com/snow-actions/tweet/actions/workflows/ci.yml/badge.svg)](https://github.com/snow-actions/tweet/actions/workflows/ci.yml)
 
 Tweet via GitHub Actions.
 
@@ -88,3 +86,18 @@ Response.
 |name|description|
 |---|---|
 |response|Response JSON|
+
+## Supported
+
+### Runners
+
+See [ci.yml](.github/workflows/ci.yml)
+
+- `ubuntu-*`
+- `windows-*`
+- `macos-*`
+- `self-hosted`
+
+### Events
+
+- Any
