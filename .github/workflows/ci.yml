@@ -94,7 +94,7 @@ jobs:
 
   # Required status checks
   passing:
-    needs: [ test ]
+    needs: [ paths, package, test ]
     if: always()
     runs-on: ubuntu-22.04
     timeout-minutes: 5
