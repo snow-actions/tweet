@@ -1,11 +1,10 @@
 version: 2
 updates:
-# See .github/workflows/npm-check-updates.yml
-#   - package-ecosystem: 'npm'
-#     directory: '/'
-#     schedule:
-#       interval: 'monthly'
-#     open-pull-requests-limit: 2
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+    open-pull-requests-limit: 2
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
