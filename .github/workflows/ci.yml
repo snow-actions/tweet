@@ -11,22 +11,21 @@ jobs:
     timeout-minutes: 5
     outputs:
       package: ${{ steps.changes.outputs.package }}
-      test: ${{ steps.changes.outputs.test }}
 
     steps:
       - run: cat $GITHUB_EVENT_PATH
+      - uses: actions/checkout@v3
+        if: github.event_name == 'push'
       - uses: dorny/paths-filter@v2.10.2
         id: changes
         with:
           filters: |
             package:
-              - .github/workflows/package.yml
+              - .github/workflows/ci.yml
               - dist/**
               - src/**
               - package-lock.json
               - package.json
-            test:
-              - .github/workflows/test.yml
 
   package:
     needs: [ paths ]
@@ -71,7 +70,7 @@ jobs:
     if: >-
       failure() == false &&
       cancelled() == false &&
-      (needs.paths.outputs.package == 'true' || needs.paths.outputs.test == 'true')
+      needs.paths.outputs.package == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -94,7 +93,7 @@ jobs:
 
   # Required status checks
   passing:
-    needs: [ test ]
+    needs: [ paths, package, test ]
     if: always()
     runs-on: ubuntu-22.04
     timeout-minutes: 5
