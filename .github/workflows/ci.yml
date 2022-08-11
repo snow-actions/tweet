@@ -11,7 +11,6 @@ jobs:
     timeout-minutes: 5
     outputs:
       package: ${{ steps.changes.outputs.package }}
-      test: ${{ steps.changes.outputs.test }}
 
     steps:
       - run: cat $GITHUB_EVENT_PATH
@@ -22,13 +21,11 @@ jobs:
         with:
           filters: |
             package:
-              - .github/workflows/package.yml
+              - .github/workflows/ci.yml
               - dist/**
               - src/**
               - package-lock.json
               - package.json
-            test:
-              - .github/workflows/test.yml
 
   package:
     needs: [ paths ]
@@ -73,7 +70,7 @@ jobs:
     if: >-
       failure() == false &&
       cancelled() == false &&
-      (needs.paths.outputs.package == 'true' || needs.paths.outputs.test == 'true')
+      needs.paths.outputs.package == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
