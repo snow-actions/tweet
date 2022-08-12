@@ -15,7 +15,7 @@ Tweet via GitHub Actions.
 ```yml
 steps:
   - name: Tweet
-    uses: snow-actions/tweet@v1.2.1
+    uses: snow-actions/tweet@v1.2.2
     with:
       status: |
         Released ${{ github.event.release.name }}
@@ -39,7 +39,7 @@ steps:
   - uses: actions/checkout@v3
   - name: Tweet summary
     id: summary
-    uses: snow-actions/tweet@v1.2.1
+    uses: snow-actions/tweet@v1.2.2
     with:
       status: |
         Released ${{ github.event.release.name }}
@@ -48,7 +48,7 @@ steps:
         1st.png
         2nd.png
   - name: Tweet details
-    uses: snow-actions/tweet@v1.2.1
+    uses: snow-actions/tweet@v1.2.2
     with:
       status: |
         Additional information
