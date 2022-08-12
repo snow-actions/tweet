@@ -108,4 +108,4 @@ jobs:
         env:
           needs: ${{ toJSON(needs) }}
       - run: exit 1
-        if: (failure() == false && cancelled() == false) == false # success() || skipped()
+        if: (contains(needs.*.result, 'failure') == false && contains(needs.*.result, 'cancelled') == false) == false # success or skipped
