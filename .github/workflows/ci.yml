@@ -47,6 +47,12 @@ jobs:
       - run: npm run format
       - run: npm run build
       - run: npm run lint
+      - run: npm test
+        env:
+          CONSUMER_API_KEY: ${{ secrets.CONSUMER_API_KEY }}
+          CONSUMER_API_SECRET_KEY: ${{ secrets.CONSUMER_API_SECRET_KEY }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
       - run: npm run package
       - name: Diff
         id: diff

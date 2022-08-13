@@ -1,35 +1,28 @@
-import Twitter from 'twitter'
+import Twitter, {TweetV1} from 'twitter-api-v2'
 
 export async function tweet(
   status: string,
   mediaIds: string[] = [],
   inReplyToStatusId = ''
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const consumer_key = process.env.CONSUMER_API_KEY as string
-    const consumer_secret = process.env.CONSUMER_API_SECRET_KEY as string
-    const access_token_key = process.env.ACCESS_TOKEN as string
-    const access_token_secret = process.env.ACCESS_TOKEN_SECRET as string
+): Promise<TweetV1> {
+  const appKey = process.env.CONSUMER_API_KEY as string
+  const appSecret = process.env.CONSUMER_API_SECRET_KEY as string
+  const accessToken = process.env.ACCESS_TOKEN as string
+  const accessSecret = process.env.ACCESS_TOKEN_SECRET as string
 
-    const client = new Twitter({
-      consumer_key,
-      consumer_secret,
-      access_token_key,
-      access_token_secret
-    })
-    const parameters: {[key: string]: string} = {status}
-    if (mediaIds.length > 0) {
-      parameters['media_ids'] = mediaIds.join(',')
-    }
-    if (inReplyToStatusId !== '') {
-      parameters['in_reply_to_status_id'] = inReplyToStatusId
-    }
-    client.post('statuses/update', parameters, (errors, data, response) => {
-      if (errors) {
-        reject(errors)
-      }
+  const client = new Twitter({
+    appKey,
+    appSecret,
+    accessToken,
+    accessSecret
+  }).v1
 
-      resolve(response.body)
-    })
-  })
+  const parameters: {[key: string]: string} = {}
+  if (mediaIds.length > 0) {
+    parameters['media_ids'] = mediaIds.join(',')
+  }
+  if (inReplyToStatusId !== '') {
+    parameters['in_reply_to_status_id'] = inReplyToStatusId
+  }
+  return await client.tweet(status, parameters)
 }

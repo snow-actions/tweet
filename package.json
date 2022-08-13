@@ -29,7 +29,7 @@
     "@types/twitter": "^1.7.1",
     "fs": "0.0.1-security",
     "path": "^0.12.7",
-    "twitter": "^1.7.1"
+    "twitter-api-v2": "^1.12.3"
   },
   "devDependencies": {
     "@types/jest": "^27.4.1",
@@ -39,11 +39,11 @@
     "eslint": "^8.21.0",
     "eslint-plugin-github": "^4.3.7",
     "eslint-plugin-jest": "^26.1.3",
-    "jest": "^27.5.1",
+    "jest": "^28.1.3",
     "jest-circus": "^28.1.3",
     "js-yaml": "^4.1.0",
     "prettier": "2.7.1",
-    "ts-jest": "^27.1.4",
+    "ts-jest": "^28.0.7",
     "typescript": "^4.6.3"
   }
 }
