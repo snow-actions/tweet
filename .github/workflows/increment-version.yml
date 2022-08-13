@@ -1,9 +1,9 @@
-name: Version up
+name: Increment version
 
 on:
   workflow_dispatch:
     inputs:
-      semantic:
+      increment-version:
         description: Semantic versioning
         required: true
         default: patch
@@ -14,7 +14,7 @@ on:
           - patch
 
 jobs:
-  version-up:
+  increment-version:
     runs-on: ubuntu-20.04
     timeout-minutes: 5
 
@@ -24,12 +24,12 @@ jobs:
         id: version
         run: |
           set -x
-          version=$(npm --no-git-tag-version version $SEMANTIC)
+          version=$(npm --no-git-tag-version version $INCREMENT_VERSION)
           echo "::set-output name=version::${version}"
           sed -i -e "s|${GITHUB_REPOSITORY}@v[.0-9]\+|${GITHUB_REPOSITORY}@${version}|g" README.md .github/workflows/released.yml
           git diff
         env:
-          SEMANTIC: ${{ github.event.inputs.semantic }}
+          INCREMENT_VERSION: ${{ github.event.inputs.increment-version }}
       - uses: snow-actions/git-config-user@v1.0.0
       - id: generate_token
         uses: tibdex/github-app-token@v1.6.0
