@@ -28,8 +28,7 @@
     "@actions/core": "^1.6.0",
     "@types/twitter": "^1.7.1",
     "fs": "0.0.1-security",
-    "path": "^0.12.7",
-    "twitter": "^1.7.1"
+    "path": "^0.12.7"
   },
   "devDependencies": {
     "@types/jest": "^27.4.1",
