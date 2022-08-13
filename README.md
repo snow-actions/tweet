@@ -77,7 +77,14 @@ Request parameters.
 |name|required|description|
 |---|---|---|
 |status|required|The text of the status update. URL encode as necessary. [t.co link wrapping](https://developer.twitter.com/en/docs/basics/tco) will affect character counts.|
-|media_paths|optional|Upload media path(s). You may include up to 4 photos in a Tweet.|
+|media_paths|optional|[Upload media](https://developer.twitter.com/en/docs/twitter-api/v1/media/upload-media/overview) path(s). You may attach up to 4 photos, 1 animated GIF or 1 video in a Tweet.|
+
+#### Media types & size restrictions
+
+Size restrictions for uploading via API
+- Image 5MB
+- GIF 15MB
+- Video 15MB (when using media_category=amplify)
 
 ### Outputs
 
