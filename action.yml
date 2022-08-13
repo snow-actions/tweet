@@ -8,10 +8,11 @@ inputs:
   media_paths:
     description: |
       Upload media path(s).
+      You may attach up to 4 photos, 1 animated GIF or 1 video in a Tweet.
       Size restrictions for uploading via API
         * Image 5MB
         * GIF 15MB
-        * Video 15MB
+        * Video 15MB (when using media_category=amplify)
     required: false
   in_reply_to_status_id:
     description: The ID of an existing status that the update is in reply to.
