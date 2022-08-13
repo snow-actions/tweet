@@ -27,7 +27,6 @@ export async function uploadMedia(mediaPaths: string[]): Promise<string[]> {
   }).v1
 
   const mediaIds = mediaPaths.map(async path => {
-    // TODO: chunked
     return await client.uploadMedia(path)
   })
 

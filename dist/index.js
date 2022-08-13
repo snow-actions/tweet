@@ -182,7 +182,6 @@ function uploadMedia(mediaPaths) {
             accessSecret
         }).v1;
         const mediaIds = mediaPaths.map((path) => __awaiter(this, void 0, void 0, function* () {
-            // TODO: chunked
             return yield client.uploadMedia(path);
         }));
         return yield Promise.all(mediaIds);
