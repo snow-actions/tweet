@@ -6,7 +6,7 @@ import * as path from 'path'
 test('tweet', async () => {
   const text = Date.now().toString()
   const response = await tweet(text)
-  await tweet(`in reply to ${text}`, [], JSON.parse(response).id_str)
+  await tweet(`in reply to ${text}`, [], response.id_str)
 })
 
 // shows how the runner will run a javascript action with env / stdout protocol

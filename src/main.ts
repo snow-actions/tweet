@@ -21,7 +21,7 @@ async function run(): Promise<void> {
       mediaIds,
       inReplyToStatusId
     )
-    core.setOutput('response', response)
+    core.setOutput('response', JSON.stringify(response))
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
