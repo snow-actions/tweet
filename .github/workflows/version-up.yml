@@ -26,7 +26,7 @@ jobs:
           set -x
           version=$(npm --no-git-tag-version version $SEMANTIC)
           echo "::set-output name=version::${version}"
-          sed -i -e "s|${GITHUB_REPOSITORY}@v[.0-9]\+|${GITHUB_REPOSITORY}@${version}|g" README.md
+          sed -i -e "s|${GITHUB_REPOSITORY}@v[.0-9]\+|${GITHUB_REPOSITORY}@${version}|g" README.md .github/workflows/released.yml
           git diff
         env:
           SEMANTIC: ${{ github.event.inputs.semantic }}
