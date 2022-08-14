@@ -22,9 +22,9 @@ export async function uploadMedia(mediaPaths: string[]): Promise<string[]> {
     accessSecret
   }).v1
 
-  const mediaIds = mediaPaths.map(async path => {
+  const mediaIdsPromise = mediaPaths.map(async path => {
     return await client.uploadMedia(path)
   })
 
-  return await Promise.all(mediaIds)
+  return await Promise.all(mediaIdsPromise)
 }
