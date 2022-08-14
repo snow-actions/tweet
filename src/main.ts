@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import * as core from '@actions/core'
 import * as path from 'path'
 import {tweet} from './tweet'
