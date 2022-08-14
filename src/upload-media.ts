@@ -1,14 +1,10 @@
 import Twitter from 'twitter-api-v2'
-import {isString} from 'util'
 import * as fs from 'fs'
 import * as core from '@actions/core'
 
 export async function uploadMedia(mediaPaths: string[]): Promise<string[]> {
   core.debug(JSON.stringify(mediaPaths))
   for (const path of mediaPaths) {
-    if (!isString(path)) {
-      throw new Error('media path not a string')
-    }
     if (!fs.existsSync(path)) {
       throw new Error(`${path} not exists`)
     }
