@@ -24,6 +24,7 @@ jobs:
               - .github/workflows/ci.yml
               - dist/**
               - src/**
+              - action.yml
               - package-lock.json
               - package.json
 
