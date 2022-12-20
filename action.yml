@@ -1,10 +1,10 @@
-name: 'Tweet action'
-description: 'Tweet in Twitter via GitHub Actions'
-author: 'SnowCait'
+name: Tweet action
+description: Tweet in Twitter via GitHub Actions
+author: SnowCait
 inputs:
   status:
     required: true
-    description: 'The text of the status update. URL encode as necessary. t.co link wrapping will affect character counts.'
+    description: The text of the status update. URL encode as necessary. t.co link wrapping will affect character counts.
   media_paths:
     description: |
       Upload media path(s).
@@ -19,10 +19,10 @@ inputs:
     required: false
 outputs:
   response:
-    description: 'Response JSON'
+    description: Response JSON
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: node16
+  main: dist/index.js
 branding:
-  icon: 'edit'
-  color: 'blue'
+  icon: edit
+  color: blue
