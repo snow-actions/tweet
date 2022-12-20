@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   paths:
@@ -15,7 +16,7 @@ jobs:
     steps:
       - run: cat $GITHUB_EVENT_PATH
       - uses: actions/checkout@v3
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request'
       - uses: dorny/paths-filter@v2.11.1
         id: changes
         with:

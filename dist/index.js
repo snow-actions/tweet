@@ -328,7 +328,6 @@ const file_command_1 = __nccwpck_require__(717);
 const utils_1 = __nccwpck_require__(5278);
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
-const uuid_1 = __nccwpck_require__(5840);
 const oidc_utils_1 = __nccwpck_require__(8041);
 /**
  * The code to exit an action
@@ -358,20 +357,9 @@ function exportVariable(name, val) {
     process.env[name] = convertedVal;
     const filePath = process.env['GITHUB_ENV'] || '';
     if (filePath) {
-        const delimiter = `ghadelimiter_${uuid_1.v4()}`;
-        // These should realistically never happen, but just in case someone finds a way to exploit uuid generation let's not allow keys or values that contain the delimiter.
-        if (name.includes(delimiter)) {
-            throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter}"`);
-        }
-        if (convertedVal.includes(delimiter)) {
-            throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
-        }
-        const commandValue = `${name}<<${delimiter}${os.EOL}${convertedVal}${os.EOL}${delimiter}`;
-        file_command_1.issueCommand('ENV', commandValue);
+        return file_command_1.issueFileCommand('ENV', file_command_1.prepareKeyValueMessage(name, val));
     }
-    else {
-        command_1.issueCommand('set-env', { name }, convertedVal);
-    }
+    command_1.issueCommand('set-env', { name }, convertedVal);
 }
 exports.exportVariable = exportVariable;
 /**
@@ -389,7 +377,7 @@ exports.setSecret = setSecret;
 function addPath(inputPath) {
     const filePath = process.env['GITHUB_PATH'] || '';
     if (filePath) {
-        file_command_1.issueCommand('PATH', inputPath);
+        file_command_1.issueFileCommand('PATH', inputPath);
     }
     else {
         command_1.issueCommand('add-path', {}, inputPath);
@@ -429,7 +417,10 @@ function getMultilineInput(name, options) {
     const inputs = getInput(name, options)
         .split('\n')
         .filter(x => x !== '');
-    return inputs;
+    if (options && options.trimWhitespace === false) {
+        return inputs;
+    }
+    return inputs.map(input => input.trim());
 }
 exports.getMultilineInput = getMultilineInput;
 /**
@@ -462,8 +453,12 @@ exports.getBooleanInput = getBooleanInput;
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setOutput(name, value) {
+    const filePath = process.env['GITHUB_OUTPUT'] || '';
+    if (filePath) {
+        return file_command_1.issueFileCommand('OUTPUT', file_command_1.prepareKeyValueMessage(name, value));
+    }
     process.stdout.write(os.EOL);
-    command_1.issueCommand('set-output', { name }, value);
+    command_1.issueCommand('set-output', { name }, utils_1.toCommandValue(value));
 }
 exports.setOutput = setOutput;
 /**
@@ -592,7 +587,11 @@ exports.group = group;
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function saveState(name, value) {
-    command_1.issueCommand('save-state', { name }, value);
+    const filePath = process.env['GITHUB_STATE'] || '';
+    if (filePath) {
+        return file_command_1.issueFileCommand('STATE', file_command_1.prepareKeyValueMessage(name, value));
+    }
+    command_1.issueCommand('save-state', { name }, utils_1.toCommandValue(value));
 }
 exports.saveState = saveState;
 /**
@@ -658,13 +657,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.issueCommand = void 0;
+exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const fs = __importStar(__nccwpck_require__(7147));
 const os = __importStar(__nccwpck_require__(2037));
+const uuid_1 = __nccwpck_require__(5840);
 const utils_1 = __nccwpck_require__(5278);
-function issueCommand(command, message) {
+function issueFileCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
     if (!filePath) {
         throw new Error(`Unable to find environment variable for file command ${command}`);
@@ -676,7 +676,22 @@ function issueCommand(command, message) {
         encoding: 'utf8'
     });
 }
-exports.issueCommand = issueCommand;
+exports.issueFileCommand = issueFileCommand;
+function prepareKeyValueMessage(key, value) {
+    const delimiter = `ghadelimiter_${uuid_1.v4()}`;
+    const convertedValue = utils_1.toCommandValue(value);
+    // These should realistically never happen, but just in case someone finds a
+    // way to exploit uuid generation let's not allow keys or values that contain
+    // the delimiter.
+    if (key.includes(delimiter)) {
+        throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter}"`);
+    }
+    if (convertedValue.includes(delimiter)) {
+        throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
+    }
+    return `${key}<<${delimiter}${os.EOL}${convertedValue}${os.EOL}${delimiter}`;
+}
+exports.prepareKeyValueMessage = prepareKeyValueMessage;
 //# sourceMappingURL=file-command.js.map
 
 /***/ }),
@@ -3536,11 +3551,15 @@ class RequestParamHelpers {
             return body;
         }
         if (mode === 'json') {
-            headers['content-type'] = 'application/json;charset=UTF-8';
+            if (!headers['content-type']) {
+                headers['content-type'] = 'application/json;charset=UTF-8';
+            }
             return JSON.stringify(body);
         }
         else if (mode === 'url') {
-            headers['content-type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+            if (!headers['content-type']) {
+                headers['content-type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+            }
             if (Object.keys(body).length) {
                 return new URLSearchParams(body)
                     .toString()
@@ -3556,8 +3575,10 @@ class RequestParamHelpers {
             for (const parameter in body) {
                 form.append(parameter, body[parameter]);
             }
-            const formHeaders = form.getHeaders();
-            headers['content-type'] = formHeaders['content-type'];
+            if (!headers['content-type']) {
+                const formHeaders = form.getHeaders();
+                headers['content-type'] = formHeaders['content-type'];
+            }
             return form.getBuffer();
         }
     }
@@ -4411,6 +4432,9 @@ class TwitterPaginator {
         this._sharedParams = sharedParams;
     }
     get _isRateLimitOk() {
+        if (!this._rateLimit) {
+            return true;
+        }
         const resetDate = this._rateLimit.reset * 1000;
         if (resetDate < Date.now()) {
             return true;
@@ -4480,7 +4504,8 @@ class TwitterPaginator {
         return this;
     }
     get rateLimit() {
-        return { ...this._rateLimit };
+        var _a;
+        return { ...(_a = this._rateLimit) !== null && _a !== void 0 ? _a : {} };
     }
     /** Get raw data returned by Twitter API. */
     get data() {
@@ -4632,6 +4657,140 @@ exports.WelcomeDmV1Paginator = WelcomeDmV1Paginator;
 
 /***/ }),
 
+/***/ 4509:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UserFollowerIdsV1Paginator = exports.UserFollowerListV1Paginator = void 0;
+const paginator_v1_1 = __nccwpck_require__(593);
+class UserFollowerListV1Paginator extends paginator_v1_1.CursoredV1Paginator {
+    constructor() {
+        super(...arguments);
+        this._endpoint = 'followers/list.json';
+    }
+    refreshInstanceFromResult(response, isNextPage) {
+        const result = response.data;
+        this._rateLimit = response.rateLimit;
+        if (isNextPage) {
+            this._realData.users.push(...result.users);
+            this._realData.next_cursor = result.next_cursor;
+        }
+    }
+    getPageLengthFromRequest(result) {
+        return result.data.users.length;
+    }
+    getItemArray() {
+        return this.users;
+    }
+    /**
+     * Users returned by paginator.
+     */
+    get users() {
+        return this._realData.users;
+    }
+}
+exports.UserFollowerListV1Paginator = UserFollowerListV1Paginator;
+class UserFollowerIdsV1Paginator extends paginator_v1_1.CursoredV1Paginator {
+    constructor() {
+        super(...arguments);
+        this._endpoint = 'followers/ids.json';
+        this._maxResultsWhenFetchLast = 5000;
+    }
+    refreshInstanceFromResult(response, isNextPage) {
+        const result = response.data;
+        this._rateLimit = response.rateLimit;
+        if (isNextPage) {
+            this._realData.ids.push(...result.ids);
+            this._realData.next_cursor = result.next_cursor;
+        }
+    }
+    getPageLengthFromRequest(result) {
+        return result.data.ids.length;
+    }
+    getItemArray() {
+        return this.ids;
+    }
+    /**
+     * Users IDs returned by paginator.
+     */
+    get ids() {
+        return this._realData.ids;
+    }
+}
+exports.UserFollowerIdsV1Paginator = UserFollowerIdsV1Paginator;
+
+
+/***/ }),
+
+/***/ 5905:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UserFollowersIdsV1Paginator = exports.UserFriendListV1Paginator = void 0;
+const paginator_v1_1 = __nccwpck_require__(593);
+class UserFriendListV1Paginator extends paginator_v1_1.CursoredV1Paginator {
+    constructor() {
+        super(...arguments);
+        this._endpoint = 'friends/list.json';
+    }
+    refreshInstanceFromResult(response, isNextPage) {
+        const result = response.data;
+        this._rateLimit = response.rateLimit;
+        if (isNextPage) {
+            this._realData.users.push(...result.users);
+            this._realData.next_cursor = result.next_cursor;
+        }
+    }
+    getPageLengthFromRequest(result) {
+        return result.data.users.length;
+    }
+    getItemArray() {
+        return this.users;
+    }
+    /**
+     * Users returned by paginator.
+     */
+    get users() {
+        return this._realData.users;
+    }
+}
+exports.UserFriendListV1Paginator = UserFriendListV1Paginator;
+class UserFollowersIdsV1Paginator extends paginator_v1_1.CursoredV1Paginator {
+    constructor() {
+        super(...arguments);
+        this._endpoint = 'friends/ids.json';
+        this._maxResultsWhenFetchLast = 5000;
+    }
+    refreshInstanceFromResult(response, isNextPage) {
+        const result = response.data;
+        this._rateLimit = response.rateLimit;
+        if (isNextPage) {
+            this._realData.ids.push(...result.ids);
+            this._realData.next_cursor = result.next_cursor;
+        }
+    }
+    getPageLengthFromRequest(result) {
+        return result.data.ids.length;
+    }
+    getItemArray() {
+        return this.ids;
+    }
+    /**
+     * Users IDs returned by paginator.
+     */
+    get ids() {
+        return this._realData.ids;
+    }
+}
+exports.UserFollowersIdsV1Paginator = UserFollowersIdsV1Paginator;
+
+
+/***/ }),
+
 /***/ 5814:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -4661,6 +4820,8 @@ __exportStar(__nccwpck_require__(8985), exports);
 __exportStar(__nccwpck_require__(2178), exports);
 __exportStar(__nccwpck_require__(5631), exports);
 __exportStar(__nccwpck_require__(7874), exports);
+__exportStar(__nccwpck_require__(5905), exports);
+__exportStar(__nccwpck_require__(4509), exports);
 
 
 /***/ }),
@@ -6147,7 +6308,18 @@ class ApiResponseError extends ApiError {
         this.code = options.code;
         this.headers = options.headers;
         this.rateLimit = options.rateLimit;
-        this.data = options.data;
+        // Fix bad error data payload on some v1 endpoints (see https://github.com/PLhery/node-twitter-api-v2/issues/342)
+        if (options.data && typeof options.data === 'object' && 'error' in options.data && !options.data.errors) {
+            const data = { ...options.data };
+            data.errors = [{
+                    code: EApiV1ErrorCode.InternalError,
+                    message: data.error,
+                }];
+            this.data = data;
+        }
+        else {
+            this.data = options.data;
+        }
     }
     get request() {
         return this._options.request;
@@ -6829,7 +7001,7 @@ class TwitterApiv1 extends client_v1_write_1.default {
             if (!attachment) {
                 throw new Error('The given direct message doesn\'t contain any attachment');
             }
-            urlOrDm = attachment.media_url_https;
+            urlOrDm = attachment.media.media_url_https;
         }
         const data = await this.get(urlOrDm, undefined, { forceParseMode: 'buffer', prefix: '' });
         if (!data.length) {
@@ -6859,6 +7031,8 @@ const helpers_1 = __nccwpck_require__(1120);
 const client_v1_1 = __importDefault(__nccwpck_require__(7030));
 const tweet_paginator_v1_1 = __nccwpck_require__(9848);
 const mutes_paginator_v1_1 = __nccwpck_require__(7277);
+const followers_paginator_v1_1 = __nccwpck_require__(4509);
+const friends_paginator_v1_1 = __nccwpck_require__(5905);
 const user_paginator_v1_1 = __nccwpck_require__(8985);
 const list_paginator_v1_1 = __nccwpck_require__(5631);
 /**
@@ -7058,6 +7232,72 @@ class TwitterApiv1ReadOnly extends client_subclient_1.default {
         };
         const initialRq = await this.get('mutes/users/ids.json', queryParams, { fullResponse: true });
         return new mutes_paginator_v1_1.MuteUserIdsV1Paginator({
+            realData: initialRq.data,
+            rateLimit: initialRq.rateLimit,
+            instance: this,
+            queryParams,
+        });
+    }
+    /**
+     * Returns an array of user objects of friends of the specified user.
+     * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friends-list
+     */
+    async userFriendList(options = {}) {
+        const queryParams = {
+            ...options,
+        };
+        const initialRq = await this.get('friends/list.json', queryParams, { fullResponse: true });
+        return new friends_paginator_v1_1.UserFriendListV1Paginator({
+            realData: initialRq.data,
+            rateLimit: initialRq.rateLimit,
+            instance: this,
+            queryParams,
+        });
+    }
+    /**
+     * Returns an array of user objects of followers of the specified user.
+     * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-followers-list
+     */
+    async userFollowerList(options = {}) {
+        const queryParams = {
+            ...options,
+        };
+        const initialRq = await this.get('followers/list.json', queryParams, { fullResponse: true });
+        return new followers_paginator_v1_1.UserFollowerListV1Paginator({
+            realData: initialRq.data,
+            rateLimit: initialRq.rateLimit,
+            instance: this,
+            queryParams,
+        });
+    }
+    /**
+     * Returns an array of numeric user ids of followers of the specified user.
+     * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-followers-ids
+     */
+    async userFollowerIds(options = {}) {
+        const queryParams = {
+            stringify_ids: true,
+            ...options,
+        };
+        const initialRq = await this.get('followers/ids.json', queryParams, { fullResponse: true });
+        return new followers_paginator_v1_1.UserFollowerIdsV1Paginator({
+            realData: initialRq.data,
+            rateLimit: initialRq.rateLimit,
+            instance: this,
+            queryParams,
+        });
+    }
+    /**
+     * Returns an array of numeric user ids of friends of the specified user.
+     * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friends-ids
+     */
+    async userFollowingIds(options = {}) {
+        const queryParams = {
+            stringify_ids: true,
+            ...options,
+        };
+        const initialRq = await this.get('friends/ids.json', queryParams, { fullResponse: true });
+        return new friends_paginator_v1_1.UserFollowersIdsV1Paginator({
             realData: initialRq.data,
             rateLimit: initialRq.rateLimit,
             instance: this,
@@ -7532,6 +7772,20 @@ class TwitterApiv1ReadWrite extends client_v1_read_1.default {
      */
     updateFriendship(options) {
         return this.post('friendships/update.json', options);
+    }
+    /**
+     * Follow the specified user.
+     * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/post-friendships-create
+     */
+    createFriendship(options) {
+        return this.post('friendships/create.json', options);
+    }
+    /**
+     * Unfollow the specified user.
+     * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/post-friendships-destroy
+     */
+    destroyFriendship(options) {
+        return this.post('friendships/destroy.json', options);
     }
     /* Account API */
     /**

@@ -25,7 +25,7 @@ jobs:
         run: |
           set -x
           version=$(npm --no-git-tag-version version $INCREMENT_VERSION)
-          echo "::set-output name=version::${version}"
+          echo "version=${version}" >> $GITHUB_OUTPUT
           sed -i -e "s|${GITHUB_REPOSITORY}@v[.0-9]\+|${GITHUB_REPOSITORY}@${version}|g" README.md .github/workflows/released.yml
           git diff
         env:
