@@ -7,6 +7,7 @@ Tweet via GitHub Actions.
 ## Usage
 
 1. Create your Twitter App in [developer.twitter.com](https://developer.twitter.com/en/apps).
+1. Generate Twitter API v1.1 tokens. ([Not Twitter API v2](#why-not-twitter-api-v2))
 1. Set secrets `TWITTER_CONSUMER_API_KEY`, `TWITTER_CONSUMER_API_SECRET_KEY`, `TWITTER_ACCESS_TOKEN`, `TWITTER_ACCESS_TOKEN_SECRET` in settings.
 1. Create workflow YAML.
 
@@ -108,3 +109,9 @@ See [ci.yml](.github/workflows/ci.yml)
 ### Events
 
 - Any
+
+## Why not Twitter API v2?
+
+The access token of Twitter API v2 has a time limit.
+
+If the scope `offline.access` is applied an OAuth 2.0 refresh token will be issued. With this refresh token, we obtain an access token. Secure storage is required to keep these tokens.
